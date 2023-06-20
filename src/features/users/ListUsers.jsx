@@ -6,6 +6,7 @@ import {
   getUsersError,
   getUsersStatus,
   fetchUsers,
+  userRemoved,
 } from "./usersSlice";
 
 const ListUsers = () => {
@@ -23,6 +24,7 @@ const ListUsers = () => {
   }, [usersStatus, dispatch]);
 
   let content;
+  console.log(users);
   if (usersStatus === "loading") {
     content = <p>"Loading..."</p>;
   } else if (usersStatus === "succeeded") {
@@ -30,7 +32,6 @@ const ListUsers = () => {
       <table>
         <thead>
           <tr>
-           
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
@@ -40,12 +41,11 @@ const ListUsers = () => {
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
-          
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>{user.phone}</td>
               <td>
-                <button>X</button>
+                <button onClick={() => handleUserDelete(user.id)}>X</button>
               </td>
             </tr>
           ))}
@@ -55,6 +55,10 @@ const ListUsers = () => {
   } else if (usersStatus === "failed") {
     content = <p>{error}</p>;
   }
+
+  const handleUserDelete = (userId) => {
+    dispatch(userRemoved(userId));
+  };
 
   return <div>{content}</div>;
 };

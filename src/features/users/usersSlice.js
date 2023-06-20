@@ -1,4 +1,9 @@
-import { createSlice, createAsyncThunk, nanoid } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createAsyncThunk,
+  nanoid,
+  createAction,
+} from "@reduxjs/toolkit";
 import axios from "axios";
 
 const POSTS_URL = "https://jsonplaceholder.typicode.com/users";
@@ -18,7 +23,6 @@ export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
   }
 });
 
-
 const userSlice = createSlice({
   name: "users",
   initialState,
@@ -27,7 +31,7 @@ const userSlice = createSlice({
       reducer(state, action) {
         state.users.push(action.payload);
       },
-      prepare(name, email, phone, ) {
+      prepare(name, email, phone) {
         return {
           payload: {
             id: nanoid(),
@@ -38,6 +42,10 @@ const userSlice = createSlice({
         };
       },
     },
+    userRemoved(state, action) {
+      const userId = action.payload;
+      state.users = state.users.filter((user) => user.id !== userId);
+    },
   },
   extraReducers(builder) {
     builder
@@ -46,16 +54,14 @@ const userSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.status = "succeeded";
-        const loadedUsers = action.payload.map((user) => {
-          return user;
-        });
-        state.users = state.users.concat(loadedUsers);
+       
+        state.users = action.payload; 
       })
-
       .addCase(fetchUsers.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });
+      
   },
 });
 
@@ -63,6 +69,6 @@ export const selectAllUsers = (state) => state.users.users;
 export const getUsersStatus = (state) => state.users.status;
 export const getUsersError = (state) => state.users.error;
 
-export const { userAdded } = userSlice.actions;
+export const { userAdded, userRemoved } = userSlice.actions;
 
 export default userSlice.reducer;
